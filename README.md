@@ -1,40 +1,41 @@
-# PowerShell-Keyboard-Layout-Indicator
-Индикатор раскладки клавиатуры в PowerShell
+# PowerShell Keyboard Layout Indicator
 
-Этот скрипт отображает текущую раскладку клавиатуры (`<en>` или `<ru>`) с цветовой индикацией прямо в приглашении PowerShell.
+> [Русская версия](README-ru.md) | [English version](README.md)
 
-## ✅ Возможности
+Displays current keyboard layout (`<en>` or `<ru>`) with color indicators directly in PowerShell prompt.
 
-- Отображение текущей раскладки клавиатуры
-- Цветная индикация:
-  - 🟢 Зеленый — английская раскладка (`<en>`)
-  - 🔵 Синий — русская раскладка (`<ru>`)
-- Автоматическое обновление при смене раскладки
-- Работает в **PowerShell 7 и выше**
+## ✅ Features
+
+- Shows current keyboard layout status
+- Color indicators:
+  - 🟢 Green - English layout (`<en>`)
+  - 🔵 Blue - Russian layout (`<ru>`)
+- Auto-updates when layout changes
+- Works in **PowerShell 7+**
 
 ---
 
-## 🛠️ Установка
+## 🛠️ Installation
 
-### 1. Создание скрипта
+### 1. Create the script
 
-1. Откройте PowerShell 7
-2. Выполните команды:
+1. Open PowerShell 7
+2. Run these commands:
 
 ```powershell
-# Создаем папку для системных скриптов
+# Create folder for system scripts
 mkdir "$env:USERPROFILE\Documents\system" -Force
 
-# Открываем файл скрипта в VS Code
+# Open script file in VS Code
 code "$env:USERPROFILE\Documents\system\keyboard_prompt.ps1"
 ```
 
-3. Вставьте следующий код в открывшийся файл:
+3. Paste this code into the opened file:
 
 ```powershell
 <#
 .SYNOPSIS
-    Добавляет индикатор раскладки клавиатуры в приглашение PowerShell
+    Adds keyboard layout indicator to PowerShell prompt
 #>
 
 Add-Type @"
@@ -59,7 +60,7 @@ public class KeyboardLayout {
             uint localeId = (uint)keyboardLayout.ToInt32() & 0xFFFF;
             return new System.Globalization.CultureInfo((int)localeId).Name;
         } catch {
-            return "en-US"; // Возвращаем английскую раскладку по умолчанию в случае ошибки
+            return "en-US"; // Fallback to English layout on error
         }
     }
 }
@@ -68,9 +69,9 @@ public class KeyboardLayout {
 function global:prompt {
     $layout = [KeyboardLayout]::GetCurrentKeyboardLayout()
     $indicator = if ($layout -like "en-*") {
-        "`e[38;5;34m<en>`e[0m"  # зелёный
+        "`e[38;5;34m<en>`e[0m"  # green
     } else {
-        "`e[38;5;27m<ru>`e[0m"   # синий (код 27)
+        "`e[38;5;27m<ru>`e[0m"   # blue (code 27)
     }
     "PS $($executionContext.SessionState.Path.CurrentLocation)$indicator "
 }
@@ -78,28 +79,28 @@ function global:prompt {
 
 ---
 
-### 2. Настройка профиля PowerShell
+### 2. Configure PowerShell Profile
 
-1. Откройте файл профиля PowerShell:
+1. Open your PowerShell profile:
 
 ```powershell
 code $PROFILE
 ```
 
-2. Добавьте в начало файла строку:
+2. Add this line at the beginning:
 
 ```powershell
-# Подключение индикатора раскладки клавиатуры
+# Import keyboard layout indicator
 . "$env:USERPROFILE\Documents\system\keyboard_prompt.ps1"
 ```
 
-3. Сохраните файл (Ctrl+S)
+3. Save the file (Ctrl+S)
 
 ---
 
-### 3. Применение изменений
+### 3. Apply Changes
 
-Выполните команду для обновления профиля:
+Reload your profile with:
 
 ```powershell
 . $PROFILE
@@ -107,45 +108,45 @@ code $PROFILE
 
 ---
 
-## 🧪 Проверка работы
+## 🧪 Verification
 
-После выполнения всех шагов в приглашении PowerShell появится индикатор:
+After completing all steps, you'll see in your prompt:
 
 ```powershell
 PS C:\Users\UserName<en>
 ```
 
-Где:
-- `<en>` — зелёный цвет для английской раскладки
-- `<ru>` — синий цвет для русской раскладки
+Where:
+- `<en>` - green (English layout)
+- `<ru>` - blue (Russian layout)
 
 ---
 
-## ⚠️ Примечания
+## ⚠️ Notes
 
-1. **Требования**:
+1. **Requirements**:
    - Windows 10/11
-   - PowerShell 7.0 или новее
-   - Рекомендуется использовать Windows Terminal для лучшего отображения цветов
+   - PowerShell 7.0 or newer
+   - Recommended: Windows Terminal for best color display
 
-2. **Ограничения**:
-   - Не работает в PowerShell ISE
-   - Может не работать в Windows PowerShell 5.1
+2. **Limitations**:
+   - Doesn't work in PowerShell ISE
+   - May not work in Windows PowerShell 5.1
 
-3. **Совместимость**:
-   - Скрипт автоматически определяет раскладку активного окна
-   - В случае ошибки показывает английскую раскладку по умолчанию
+3. **Compatibility**:
+   - Automatically detects active window's layout
+   - Falls back to English layout on errors
 
 ---
 
-## 🎨 Настройка цветов
+## 🎨 Color Customization
 
-Вы можете изменить цвета индикаторов, заменив коды в скрипте:
+You can change colors by modifying these codes in the script:
 
-- `38;5;34m` — зеленый (код 34)
-- `38;5;27m` — синий (код 27)
+- `38;5;34m` - green (code 34)
+- `38;5;27m` - blue (code 27)
 
-Для просмотра всех доступных цветов выполните:
+To view all available colors:
 
 ```powershell
 for ($i = 0; $i -lt 256; $i++) {
@@ -156,12 +157,12 @@ for ($i = 0; $i -lt 256; $i++) {
 
 ---
 
-## 🔄 Обновление скрипта
+## 🔄 Script Updates
 
-При изменении скрипта не забудьте выполнить:
+After modifying the script, remember to:
 
 ```powershell
 . $PROFILE
 ```
 
-для применения изменений.
+to apply changes.
