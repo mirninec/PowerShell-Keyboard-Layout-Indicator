@@ -36,7 +36,7 @@ code "$env:USERPROFILE\Documents\system\keyboard_prompt.ps1"
 ```powershell
 <#
 .SYNOPSIS
-    Добавляет индикатор раскладки клавиатуры в приглашение PowerShell
+    Добавляет индикатор раскладки клавиатуры и текущую git-ветку в приглашение PowerShell
 #>
 
 Add-Type @"
@@ -61,20 +61,41 @@ public class KeyboardLayout {
             uint localeId = (uint)keyboardLayout.ToInt32() & 0xFFFF;
             return new System.Globalization.CultureInfo((int)localeId).Name;
         } catch {
-            return "en-US"; // Возвращаем английскую раскладку по умолчанию в случае ошибки
+            return "en-US";
         }
     }
 }
 "@
 
+function global:Get-GitBranch {
+    try {
+        $gitDir = git rev-parse --git-dir 2>$null
+        if ($LASTEXITCODE -eq 0) {
+            $branch = git rev-parse --abbrev-ref HEAD 2>$null
+            return "[${branch}]"
+        }
+    } catch {
+        return ""
+    }
+    return ""
+}
+
 function global:prompt {
+    # Текущая раскладка клавиатуры
     $layout = [KeyboardLayout]::GetCurrentKeyboardLayout()
     $indicator = if ($layout -like "en-*") {
         "`e[38;5;34m<en>`e[0m"  # зелёный
     } else {
-        "`e[38;5;27m<ru>`e[0m"   # синий (код 27)
+        "`e[38;5;27m<ru>`e[0m"  # синий
     }
-    "PS $($executionContext.SessionState.Path.CurrentLocation)$indicator "
+
+    # Текущая ветка Git, если есть
+    $branch = Get-GitBranch
+    if ($branch) {
+        $branch = "`e[38;5;208m$branch`e[0m"  # оранжевый
+    }
+
+    "PS $($executionContext.SessionState.Path.CurrentLocation)$branch$indicator "
 }
 ```
 
