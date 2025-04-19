@@ -151,8 +151,8 @@ PS C:\Users\UserName<en>
 
 ```powershell
 for ($i = 0; $i -lt 256; $i++) {
-  Write-Host "`e[38;5;${i}m$i`e[0m " -NoNewline
-  if (($i + 1) % 16 -eq 0) { Write-Host }
+  Write-Host "`e[38;5;${i}m$i`t" -NoNewline
+  if (($i + 1) % 16 -eq 0) { Write-Host "`e[0m" }
 }
 ```
 
